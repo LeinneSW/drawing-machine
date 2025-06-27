@@ -17,7 +17,7 @@ let participants = (() => {
             return json;
         }
     }catch{}
-    localStorage.setItem('items', [])
+    localStorage.setItem('items', '[]')
     return []
 })()
 
