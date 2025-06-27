@@ -23,7 +23,7 @@ let participants = (() => {
 
 const renderList = () => {
     listEl.innerHTML = participants.map(n => `<li ondblclick='removeItem(this.textContent)'>${n}</li>`).join('');
-    countEl.textContent = participants.length;
+    countEl.textContent = participants.length + '';
 }
 
 const addItem = (...names) => {
@@ -88,7 +88,6 @@ function startDraw(duration, speed){
 
     function step(now){
         const elapsed = now - t0;
-
         elapsed >= duration && (stopTriggered = true); // 자동 종료 예약
         if(stopTriggered){
             if(slowStart === null){
@@ -101,6 +100,7 @@ function startDraw(duration, speed){
             const p = Math.min(1, elapsed / 1500); // 가속에 걸리는시간, ms
             v = speed * (p * p);                   // ease‑in(quad)
         }
+        maxV = Math.max(v, maxV)
 
         /* 3️⃣ 스크롤 */
         scrollingList.scrollTop += v;
