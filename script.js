@@ -70,10 +70,13 @@ addBtn.addEventListener('click', () => {
 /* --------------------------------------------------------
  *    duration : 회전 유지 시간(ms)
  *    speed    : px/frame (60fps 기준)
+ *    accel    : 가속 시간
+ *    decel    : 감속 시간
  * ------------------------------------------------------*/
-function startDraw(duration, speed){
+function startDraw(duration, speed, accel = 2000, decel = 2000){
+    duration += accel - decel;
     if(!participants.length){
-        alert('참가자가 없습니다!');
+        alert('추첨할 대상을 먼저 추가해주세요!');
         return;
     }
 
@@ -109,10 +112,10 @@ function startDraw(duration, speed){
                 slowStart = now;
                 stopBtn.disabled = true;
             }
-            const p = Math.min(1, (now - slowStart) / 3000); // 감속에 걸리는시간, ms
+            const p = Math.min(1, (now - slowStart) / decel); // 감속에 걸리는시간, ms
             v = Math.min(maxV, speed) * (1 - p * p);         // ease‑out(quad)
         }else{
-            const p = Math.min(1, elapsed / 1500); // 가속에 걸리는시간, ms
+            const p = Math.min(1, elapsed / accel); // 가속에 걸리는시간, ms
             v = speed * (p * p);                   // ease‑in(quad)
         }
         maxV = Math.max(v, maxV)
