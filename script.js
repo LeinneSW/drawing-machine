@@ -90,7 +90,10 @@ function startDraw(duration, speed){
 
         elapsed >= duration && (stopTriggered = true); // 자동 종료 예약
         if(stopTriggered){
-            if(slowStart === null) slowStart = now;
+            if(slowStart === null){
+                slowStart = now;
+                stopBtn.disabled = true;
+            }
             const p = Math.min(1, (now - slowStart) / 3000); // 감속에 걸리는시간, ms
             v = speed * (1 - p * p);                         // ease‑out(quad)
         }else{
@@ -149,7 +152,6 @@ function startDraw(duration, speed){
             await new Promise(resolve => setTimeout(resolve, 100));
             resultEl.classList.remove('hidden');
             resultEl.textContent = `🎉 당첨: ${sel.textContent}!`;
-            stopBtn.disabled = true;
         };
     }
 }
