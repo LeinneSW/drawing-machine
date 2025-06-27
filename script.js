@@ -120,25 +120,16 @@ function startDraw(duration, speed){
 
     /* 현재 중앙 항목 하이라이트 */
     function highlightCenter(){
+        // 가시 영역 정중앙의 절대 위치(px)
         const centerLine = scrollingList.scrollTop + scrollingList.clientHeight / 2;
-        const children = scrollingList.children;
 
-        let index = -1;
-        for(let i = 0; i < children.length; i++){
-            const start = children[i].offsetTop;
-            const end = start + itemHeight;
-            if(start <= centerLine && centerLine <= end){
-                index = i;
-                break;
-            }
-        }
+        // 중앙선이 몇 번째 행에 들어왔는지 계산
+        const index = Math.floor(centerLine / itemHeight);
 
-        if(index === -1) alert('hi')
-
-        // 선택 상태 갱신
-        if(index !== -1 && prevIndex !== index){
-            children[index].classList.add('selected');
-            children[prevIndex]?.classList.remove('selected');
+        // 선택 갱신
+        if(prevIndex !== index){
+            scrollingList.children[index].classList.add('selected');
+            scrollingList.children[prevIndex]?.classList.remove('selected');
             prevIndex = index;
         }
     }
