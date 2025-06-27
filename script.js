@@ -147,13 +147,13 @@ function startDraw(duration, speed){
     function alignAndFinish(){
         const sel = scrollingList.children[prevIndex]
         const baseTarget = sel.offsetTop - (scrollingList.clientHeight / 2 - itemHeight / 2);
-        scrollingList.scrollTo({top: baseTarget, behavior: 'smooth'});
         scrollingList.onscrollend = async () => {
             scrollingList.onscrollend = null
             await new Promise(resolve => setTimeout(resolve, 100));
             resultEl.classList.remove('hidden');
             resultEl.textContent = `🎉 당첨: ${sel.textContent}!`;
         };
+        scrollingList.scrollTo({top: baseTarget, behavior: 'smooth'});
     }
 }
 drawBtn.addEventListener('click', () => startDraw(10000, 8));
