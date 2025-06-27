@@ -78,6 +78,7 @@ function startDraw(duration, speed){
 
     const t0 = performance.now();
     let v = 0.1;            // px/frame
+    let maxV = v;
     let prevIndex = null;       // 실시간 강조용
     let slowStart = null;
     let stopTriggered = false;
@@ -95,7 +96,7 @@ function startDraw(duration, speed){
                 stopBtn.disabled = true;
             }
             const p = Math.min(1, (now - slowStart) / 3000); // 감속에 걸리는시간, ms
-            v = speed * (1 - p * p);                         // ease‑out(quad)
+            v = Math.min(maxV, speed) * (1 - p * p);         // ease‑out(quad)
         }else{
             const p = Math.min(1, elapsed / 1500); // 가속에 걸리는시간, ms
             v = speed * (p * p);                   // ease‑in(quad)
