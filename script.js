@@ -86,6 +86,7 @@ function startDraw(duration, speed){
     let rafId = requestAnimationFrame(step);
     const maxScroll = scrollingList.scrollHeight - scrollingList.clientHeight - itemHeight;
 
+    let scroll = scrollingList.scrollTop
     function step(now){
         const elapsed = now - t0;
         elapsed >= duration && (stopTriggered = true); // 자동 종료 예약
@@ -102,11 +103,10 @@ function startDraw(duration, speed){
         }
         maxV = Math.max(v, maxV)
 
-        /* 3️⃣ 스크롤 */
-        scrollingList.scrollTop += v;
-        // 리스트 맨 끝 근처에 오면 ▶️ 한 세트(원본 길이)만큼 되돌려
+        // 직접 가산/감산시 소수값이 일부 누락됨
+        scrollingList.scrollTop = (scroll += v);
         if(scrollingList.scrollTop >= maxScroll){
-            scrollingList.scrollTop -= itemHeight * participants.length * 15; // 동일 내용 유지
+            scrollingList.scrollTop = (scroll -= itemHeight * participants.length * 15);
         }
 
         /* 4️⃣ 중앙 강조 */
