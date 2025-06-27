@@ -10,6 +10,7 @@ const stopBtn = document.getElementById('stopBtn');
 const closeBtn = document.getElementById('closeBtn');
 const resultEl = document.getElementById('result');
 
+let animationId = null
 let participants = (() => {
     try{
         const json = JSON.parse(localStorage.getItem('items') || '[]')
@@ -36,6 +37,22 @@ const removeItem = (name) => {
     participants = participants.filter(v => v !== name)
     localStorage.setItem('items', JSON.stringify(participants))
     renderList();
+}
+
+// 스크롤 리스트 구성
+function setupModal(){
+    const items = shuffle(participants);
+    for(let i = 0; i < 5; i++) items.push(...items);
+    scrollingList.innerHTML = items.map(n => `<li>${n}</li>`).join('');
+}
+
+function shuffle(arr){ // 피셔–예이츠
+    const result = [...arr]
+    for(let i = result.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
 }
 
 renderList()
@@ -66,24 +83,21 @@ function startDraw(duration, speed){
 
     stopBtn.disabled = false;
     stopBtn.onclick = () => (stopTriggered = true);
-    closeBtn.onclick = () => {
-        cancelAnimationFrame(rafId);
-        modal.classList.add('hidden');
-    };
+    closeBtn.onclick = stopDraw;
 
     const itemHeight = scrollingList.querySelector('li').getBoundingClientRect().height;
     const randomIndex = participants.length + Math.floor(Math.random() * participants.length)
     const baseTarget = scrollingList.children[randomIndex].offsetTop - (scrollingList.clientHeight / 2 - itemHeight / 2);
     scrollingList.scrollTo({top: baseTarget});
 
-    const t0 = performance.now();
     let v = 0.1;            // px/frame
     let maxV = v;
     let prevIndex = null;       // 실시간 강조용
     let slowStart = null;
     let stopTriggered = false;
 
-    let rafId = requestAnimationFrame(step);
+    const t0 = performance.now();
+    animationId = requestAnimationFrame(step);
     const maxScroll = scrollingList.scrollHeight - scrollingList.clientHeight - itemHeight;
 
     let scroll = scrollingList.scrollTop
@@ -109,12 +123,11 @@ function startDraw(duration, speed){
             scrollingList.scrollTop = (scroll -= itemHeight * participants.length * 15);
         }
 
-        /* 4️⃣ 중앙 강조 */
         highlightCenter();
         if(stopTriggered && v < 0.15){
             alignAndFinish();
         }else{
-            rafId = requestAnimationFrame(step);
+            animationId = requestAnimationFrame(step);
         }
     }
 
@@ -128,6 +141,7 @@ function startDraw(duration, speed){
 
         // 선택 갱신
         if(prevIndex !== index){
+            // TODO: Play Sound
             scrollingList.children[index].classList.add('selected');
             scrollingList.children[prevIndex]?.classList.remove('selected');
             prevIndex = index;
@@ -143,26 +157,15 @@ function startDraw(duration, speed){
             await new Promise(resolve => setTimeout(resolve, 100));
             resultEl.classList.remove('hidden');
             resultEl.textContent = `🎉 당첨: ${sel.textContent}!`;
+            // TODO: Play Sound
         };
         scrollingList.scrollTo({top: baseTarget, behavior: 'smooth'});
     }
 }
+const stopDraw = () => {
+    modal.classList.add('hidden')
+    animationId && cancelAnimationFrame(animationId)
+}
+
 drawBtn.addEventListener('click', () => startDraw(10000, 8));
-
-/* --------------------------------------------------------
- * 모달 스크롤 리스트 구성
- * ------------------------------------------------------*/
-function setupModal(){
-    const items = shuffle(participants);
-    for(let i = 0; i < 5; i++) items.push(...items);
-    scrollingList.innerHTML = items.map(n => `<li>${n}</li>`).join('');
-}
-
-function shuffle(arr){ // 피셔–예이츠
-    const result = [...arr]
-    for(let i = result.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-    return result;
-}
+document.onkeydown = e => e.key === 'Escape' && stopDraw();
