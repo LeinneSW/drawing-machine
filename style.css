@@ -45,7 +45,7 @@ ul{
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    min-width: 320px;
+    min-width: 620px;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
@@ -56,7 +56,7 @@ ul{
 #scrollingList{
     position: relative;
     width: 100%;
-    height: 140px;
+    height: 300px;
     overflow: hidden;
     border: 1px solid #ddd;
 }
@@ -66,7 +66,7 @@ ul{
     align-items: center;
     justify-content: center;
 
-    height: 38px;
+    height: 43px;
     font-size: 17px;
 
     padding: 5px 0;
@@ -75,19 +75,30 @@ ul{
 }
 
 #scrollingList li.selected{
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
-    color: #4770f7;
-    text-shadow: 0 0 2px #000000;
+    color: #5900ff;
+    text-shadow: 1px 1px 2px #666;
 }
 
 #result{
-    font-size: 1.5rem;
+    font-size: 3rem;
     font-weight: 700;
     margin: 10px 0;
+    color: #5900ff;
 }
 
 .modal-buttons button{
     margin: 0 6px;
     padding: 6px 14px;
+}
+
+/* 컨페티가 그려질 캔버스 (필요할 때만 DOM에 붙이고 제거) */
+.confetti-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;   /* 클릭·드래그 방해 금지 */
+    z-index: 9999;          /* 화면 최상단 */
 }

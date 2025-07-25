@@ -159,6 +159,7 @@ function startDraw(duration, speed, accel, decel){
             scrollingList.onscrollend = null
             await new Promise(resolve => setTimeout(resolve, 200));
             resultEl.classList.remove('hidden');
+            showConfetti()
             resultEl.textContent = `🎉 당첨: ${sel.textContent}!`;
             const audio = new Audio('./tada.flac');
             audio.volume = 0.75;
@@ -173,4 +174,74 @@ const stopDraw = () => {
 }
 
 drawBtn.addEventListener('click', () => startDraw(5000, 4.5, 2200, 2200));
-document.onkeydown = e => e.key === 'Escape' && stopDraw();
+//document.onkeydown = e => e.key === 'Escape' && stopDraw();
+
+/**
+ * 화면 전체에 컨페티를 뿌립니다.
+ * 중첩 호출 시 기존 이펙트가 끝난 뒤 새로 실행됩니다.
+ */
+function showConfetti(){
+    // 이미 실행 중이면 무시
+    if(document.querySelector('.confetti-canvas')) return;
+
+    /* ---------- 캔버스 준비 ---------- */
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    function resize(){
+        canvas.width = window.innerWidth * devicePixelRatio;
+        canvas.height = window.innerHeight * devicePixelRatio;
+        ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    /* ---------- 파티클 초기화 ---------- */
+    const colors = ['#f94144', '#f3722c', '#f9c74f', '#90be6d', '#577590', '#277da1'];
+    let particles = Array.from({length: 200}, () => ({ // length개의 컨페티
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * -window.innerHeight,          // 위쪽에서 시작
+        angle: Math.random() * 360,
+        spin: (Math.random() - 0.5) * 0.2,
+        size: 6 + Math.random() * 8,
+        velX: (Math.random() - 0.5) * 4,
+        velY: 2 + Math.random() * 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+    }));
+
+    /* ---------- 애니메이션 루프 ---------- */
+    (function frame(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+            p.x += p.velX;
+            p.y += p.velY;
+            p.angle += p.spin;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+        });
+
+        /* --- 화면을 벗어난 파티클 제거 --- */
+        particles = particles.filter(p =>
+            p.y < window.innerHeight + 40 &&
+            p.x > -40 &&
+            p.x < window.innerWidth + 40
+        );
+
+        /* --- 다음 프레임 또는 정리 --- */
+        if(particles.length){
+            requestAnimationFrame(frame);
+        }else{
+            canvas.remove();
+            window.removeEventListener('resize', resize);
+        }
+    })();
+}
